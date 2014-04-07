@@ -13,10 +13,17 @@ descr = """
     '2mass'
     'usno'
 """
+
 catalogs = {
     'sdss' : 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 3',
     '2mass': 'Two Micron All Sky Survey (2MASS) 2',
     'usno' : 'USNO-A2.0 1'
+}
+
+columns = {
+    '2mass' : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
+    'usno'  : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'], # DISTANCE, PA
+    'sdss'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z']
 }
 
 def query_position(ra,dec,rad,ru,cat):
@@ -42,8 +49,11 @@ def query_position(ra,dec,rad,ru,cat):
     print " -> search radio: %s" % radius
     print " -> position of the source (ra,dec): \033[93m(%s,%s)\033[0m" % (c.ra,c.dec)
     print " Data [ra / dec]:"
-    print zip(match.array['ra'].data, match.array['dec'])
-    print "---"    
+    try:
+        print zip(match.array['ra'].data, match.array['dec'])
+    except:
+        print zip(match.array['RA'].data, match.array['DEC'])
+    print "---"
 
     return match
     
@@ -88,9 +98,10 @@ if __name__ == '__main__':
     else:
         raise ValueError("Radius' unit not valid. Use 'arcmin' or 'arcsec'.")
 
-    cat = args.cat
-    if cat not in catalogs.keys():
+    
+    if args.cat not in catalogs.keys():
         raise ValueError("Catalog is not known. Try a valid one (-h).")
+    cat = catalogs[args.cat]
     
     out = query_position(ra,dec,radius,ru,cat)
     
