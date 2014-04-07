@@ -1,3 +1,4 @@
+import sys
 import warnings
 warnings.simplefilter("ignore")
 
@@ -26,7 +27,13 @@ columns = {
     'sdss'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z']
 }
 
-def query_position(ra,dec,rad,ru,cat):
+def list_catalogs():
+    print "Available options for 'catalogs':"
+    for k,v in catalogs.items():
+        print "-> %s : %s" % (k,v)
+    
+
+def query_position(ra,dec,rad,ru,cat,cols):
 
     radius = rad*ru
     
@@ -39,33 +46,12 @@ def query_position(ra,dec,rad,ru,cat):
     try:
         match = cone.conesearch(c, radius, catalog_db=cat)
     except:
-        print "---"
-        print "\033[91mNot able to access data for source in archive %s\033[0m" % (cat)
-        print "---"
         return None
+        
+    tab = match.to_table()
+    tab.keep_columns(cols)
+    return tab
     
-    print "---"
-    print "Found data for source in \033[92m%s\033[0m" % (cat)
-    print " -> search radio: %s" % radius
-    print " -> position of the source (ra,dec): \033[93m(%s,%s)\033[0m" % (c.ra,c.dec)
-    print " Data [ra / dec]:"
-    try:
-        print zip(match.array['ra'].data, match.array['dec'])
-    except:
-        print zip(match.array['RA'].data, match.array['DEC'])
-    print "---"
-
-    return match
-    
-def list_catalogs():
-    print "Available options for 'catalogs':"
-    for k,v in catalogs.items():
-        print "-> %s : %s" % (k,v)
-    
-
-#res.array.size
-#res.array.dtype
-#res.array.dtype.names
 
 # Lets put a cli here, so that the script can work with free parameters
 #
@@ -102,6 +88,18 @@ if __name__ == '__main__':
     if args.cat not in catalogs.keys():
         raise ValueError("Catalog is not known. Try a valid one (-h).")
     cat = catalogs[args.cat]
+    cols = columns[args.cat]
     
-    out = query_position(ra,dec,radius,ru,cat)
+    table = query_position(ra,dec,radius,ru,cat,cols)
     
+    if table is None:
+        print "---"
+        print "\033[91mNot able to access data for source in archive %s\033[0m" % (cat)
+        print "---"
+        sys.exit(1)
+    else:
+        print "---"
+        print " Table retrieved:"
+        table.pprint(max_width=-1)
+        print "---"
+        sys.exit(0)
