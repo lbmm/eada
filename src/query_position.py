@@ -16,15 +16,15 @@ descr = """
 """
 
 catalogs = {
-    'sdss' : 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 3',
-    '2mass': 'Two Micron All Sky Survey (2MASS) 2',
-    'usno' : 'USNO-A2.0 1'
+    'sdss'    : 'SDSS DR7 - Sloan Digital Sky Survey Data Release 7 3',
+    '2mass'   : 'Two Micron All Sky Survey (2MASS) 2',
+    'usno-a2' : 'USNO-A2.0 1'
 }
 
 columns = {
-    '2mass' : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
-    'usno'  : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'], # DISTANCE, PA
-    'sdss'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z']
+    'sdss'    : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z'],
+    '2mass'   : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
+    'usno-a2' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'] # DISTANCE, PA
 }
 
 def list_catalogs():
