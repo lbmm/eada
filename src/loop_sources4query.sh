@@ -5,19 +5,17 @@
 
 FILE="test_sources.csv"
 
-# Tha catalog are:
-cats='sdss 2mass usno'
-
-while IFS=, read src ra dec
+cats=$(python conesearch.py --list)
+for cat in $cats
 do
-    echo ""
-    echo "Testing the search for source $src ($ra , $dec)"
     echo "---"
-    for cat in $cats
+    echo "-> Running searches for catalog $cat"
+    while IFS=, read src ra dec
     do
-        echo " -> on catalog $cat"
-        python query_position.py -c "$cat" -r 5 --ra "$ra" --dec "$dec"
+        echo " -> looking for source $src ($ra , $dec)"
+        python conesearch.py --catalog "$cat" --ra "$ra" --dec "$dec" --radius 5 --runit arcsec --short
         echo "-"
-    done
+    done < ${FILE}
     echo "---"
-done < ${FILE}
+    echo ""
+done
