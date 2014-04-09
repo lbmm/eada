@@ -7,6 +7,7 @@ warnings.simplefilter('ignore')
 
 import pyvo as vo
 from astropy import units
+from astropy.table.table import Table
 
 desc = """
     This script searchs for sources in a given position (RA,DEC) and radius (R) 
@@ -191,8 +192,15 @@ if __name__ == '__main__':
         print "---"
         sys.exit(1)
         
+    if len(cols) > 0:
+        tab = table
+        table = Table()
+        for c in cols:
+            table.add_column(tab.columns[c])
+
     if outfile:
         table.write(outfile,format='ascii',delimiter=',')
+
     print "---"
     print " Table retrieved:"    
     table.pprint(max_width=-1)
