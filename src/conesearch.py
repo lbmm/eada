@@ -16,17 +16,25 @@ desc = """
 
 # Databases of interest
 catalogs = {
-    'sdss-7Glx': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=Galaxy&',
-    'sdss-7PhO': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=PhotoObj&',
+    'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=PhotoObj&',
     '2mass'    : 'http://wfaudata.roe.ac.uk/twomass-dsa/DirectCone?DSACAT=TWOMASS&DSATAB=twomass_psc&',
-    'ukidss-8' : 'http://wfaudata.roe.ac.uk/ukidssDR8-dsa/DirectCone?DSACAT=UKIDSS_DR8&DSATAB=lasSource&',
-    'usno-a2'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&',
-    'usno-a2.1': 'http://archive.noao.edu/nvo/usno.php?cat=sa&',
-    'usno-a2.2': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/252/out&',
-    'usno-a2.3': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnoa2&tab=main&',
-    'usno-b1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-B1&',
-    'usno-b1.1': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/284/out&',
-    'usno-b1.2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnob1&tab=main&'
+    'ukidss-dr8' : 'http://wfaudata.roe.ac.uk/ukidssDR8-dsa/DirectCone?DSACAT=UKIDSS_DR8&DSATAB=lasSource&',
+    'usno-a2': 'http://archive.noao.edu/nvo/usno.php?cat=sa&'
+}
+#    'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=Galaxy&',
+#    'usno-a2.1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&',
+#    'usno-a2.2': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/252/out&',
+#    'usno-a2.3': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnoa2&tab=main&',
+#    'usno-b1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-B1&',
+#    'usno-b1.1': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/284/out&',
+#    'usno-b1.2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnob1&tab=main&'
+
+columns = {
+    'sdss-dr7'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z'],
+    '2mass'   : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
+    'usno-a2' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude', 'Distance', 'Position_Angle'],
+#    'usno-b1' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'],
+    'ukidss-dr8': ['sourceID','ra','dec','epoch','eBV','yAperMag3','yAperMag3Err','j_1AperMag3','j_1AperMag3Err','hAperMag3','hAperMag3Err','kAperMag3','kAperMag3Err']
 }
 
 # List the available catalogs
@@ -133,7 +141,7 @@ if __name__ == '__main__':
     parser.add_argument('--short', action='store_true',
                         help="Just outputs if at least one source was found.")
                         
-    parser.add_argument('-o','--outfile', dest='outfile', type=argparse.FileType('w'),
+    parser.add_argument('-o','--outfile', dest='outfile', nargs='?', const='', default=None,
                         help="Filename to write the output, CSV format table file.")
     parser.add_argument('--nolog', action='store_true',
                         help="Do *not* log the events of the script. By default all events are written to 'conesearch.log' file.")
@@ -191,15 +199,23 @@ if __name__ == '__main__':
         sys.exit(1)
     cat = args.cat
     logging.debug("Catalog to search for sources: %s", cat)
-    
-    cols = args.cols if args.cols else [] # cols can be empty
+
+    if args.cols:
+        if 'asdc' in args.cols:
+            cols = columns[cat]
+        else:
+            cols = args.cols
+    else:
+        cols = []
     logging.debug("Columns to output: %s", cols)
 
-    if args.outfile is '':
-        logging.error("Empty name for output filename.")
-        sys.exit(1)
     outfile = args.outfile
-        
+    if args.outfile is '':
+        logging.warning("An empty name for output filename was given.")
+        outfile = cat+'_'+str(ra)+'_'+str(dec)+'_'+str(radius)+'.csv'
+        logging.warning("Filename for the output: %s" % outfile)
+    logging.debug("Output file %s",outfile)
+    
     # Now, the main function does the search and columns filtering...
     table = main(ra,dec,radius,cat,cols)
     
