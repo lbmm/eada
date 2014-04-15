@@ -30,11 +30,11 @@ catalogs = {
 #    'usno-b1.2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnob1&tab=main&'
 
 columns = {
-    'sdss-dr7'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z'],
+    'sdss-dr7'  : ['objID', 'run', 'rerun', 'camcol', 'field', 'obj', 'type', 'ra', 'dec', 'u', 'g', 'r', 'i', 'z', 'err_u', 'err_g', 'err_r', 'err_i', 'err_z'],
     '2mass'   : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
     'usno-a2' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude', 'Distance', 'Position_Angle'],
 #    'usno-b1' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'],
-    'ukidss-dr8': ['sourceID','ra','dec','epoch','eBV','yAperMag3','yAperMag3Err','j_1AperMag3','j_1AperMag3Err','hAperMag3','hAperMag3Err','kAperMag3','kAperMag3Err']
+    'ukidss-dr8': ['sourceID', 'ra', 'dec', 'epoch', 'eBV', 'yAperMag3', 'yAperMag3Err', 'j_1AperMag3', 'j_1AperMag3Err', 'hAperMag3', 'hAperMag3Err', 'kAperMag3', 'kAperMag3Err']
 }
 
 # List the available catalogs
@@ -76,7 +76,7 @@ def conesearch(ra,dec,radius,catalog):
     else:
         logging.debug("Number of sources found: %d", res.nrecs)
         
-    return res.votable.to_table()
+    return res.votable
 
 # --
 
@@ -94,7 +94,7 @@ def main(ra,dec,radius,catalog,columns):
     
     radius = rad.to(units.degree).value # convert the given radius to degrees
 
-    srcsTab = conesearch(ra,dec,radius,catalog)
+    srcsTab = conesearch(ra,dec,radius,catalog).to_table()
     
     if srcsTab is None:
         logging.critical("Search failed to complete. DAL raised an error.")
