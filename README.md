@@ -14,3 +14,16 @@ Dependencies
 []
 chb
 
+
+dereddening
+===========
+
+ Code to compute and correct for reddening the flux given a magnitude value in 
+one of the bands -- U, B, V, R, I, J, H, K -- between near-UV and IR.
+ The code uses the reddening law of Cardelli et al. 1989 (published ApJ, 354, 245).
+
+Dependencies
+============
+
+ The code uses only built-in python (2.7.6) modules -- argparse, logging, math.
+
