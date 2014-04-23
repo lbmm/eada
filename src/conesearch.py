@@ -19,7 +19,17 @@ catalogs = {
     'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=PhotoObj&',
     '2mass'    : 'http://wfaudata.roe.ac.uk/twomass-dsa/DirectCone?DSACAT=TWOMASS&DSATAB=twomass_psc&',
     'ukidss-dr8' : 'http://wfaudata.roe.ac.uk/ukidssDR8-dsa/DirectCone?DSACAT=UKIDSS_DR8&DSATAB=lasSource&',
-    'usno-a2': 'http://archive.noao.edu/nvo/usno.php?cat=sa&'
+    'ukidss-las' : 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=II/314&',
+    'usno-a2': 'http://archive.noao.edu/nvo/usno.php?cat=sa&',
+    'EUV': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=euv&',
+    'SWIRE': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=swirecxo&',
+    'BONN-1420MHZ': 'http://skyview.gsfc.nasa.gov/cgi-bin/vo/sia.pl?survey=1420mhz&',
+    'MIT-GB': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=mitgb6cm&',
+    'TEXAS-365MHZ': 'http://camelot.star.le.ac.uk:8080/dsa-catalog/SubmitCone?DSACAT=ledas&DSATAB=texas&',
+    'GSC23': 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&',
+    'XTE-ASM': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=xteasmlong&',
+    'XTE-slew': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=xteassagn&',
+    'RU-GSC2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=gsc2_3_2&tab=main&'
 }
 #    'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=Galaxy&',
 #    'usno-a2.1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&',
@@ -30,11 +40,14 @@ catalogs = {
 #    'usno-b1.2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnob1&tab=main&'
 
 columns = {
-    'sdss-dr7'  : ['objID', 'run', 'rerun', 'camcol', 'field', 'obj', 'type', 'ra', 'dec', 'u', 'g', 'r', 'i', 'z', 'err_u', 'err_g', 'err_r', 'err_i', 'err_z'],
+    'sdss-dr7'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z'],
     '2mass'   : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
     'usno-a2' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude', 'Distance', 'Position_Angle'],
 #    'usno-b1' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'],
-    'ukidss-dr8': ['sourceID', 'ra', 'dec', 'epoch', 'eBV', 'yAperMag3', 'yAperMag3Err', 'j_1AperMag3', 'j_1AperMag3Err', 'hAperMag3', 'hAperMag3Err', 'kAperMag3', 'kAperMag3Err']
+    'ukidss-dr8': ['sourceID','ra','dec','epoch','eBV','yAperMag3','yAperMag3Err','j_1AperMag3','j_1AperMag3Err','hAperMag3','hAperMag3Err','kAperMag3','kAperMag3Err'],
+    'ukidss-las': ['ID','RAJ2000','DEJ2000','Epoch','Ymag','e_Ymag','Jmag','e_Jmag','Hmag','e_Hmag','Kmag','e_Kmag','Jtot','e_Jtot'],
+    'RU-GSC2': ['ra','dec','epoch','FpgMag','JpgMag','UMag','BMag','RMag','IMag'],
+    'GSC23': ['hstID','ra','dec','epoch','FpgMag','FpgMagErr','JpgMag','JpgMagErr','UMag','UMagErr','BMag','BMagErr','RMag','RMagErr','IMag','IMagErr']
 }
 
 # List the available catalogs
