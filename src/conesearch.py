@@ -21,7 +21,7 @@ def list_catalogs(cp):
 
 
 # Search a source in a particular catalog
-def conesearch(ra,dec,radius,catalog):
+def conesearch(ra,dec,radius,catalog,cp):
     """
     Search for objects inside the 'radius' around ('ra','dec,) in 'catalog'.
     
@@ -32,7 +32,7 @@ def conesearch(ra,dec,radius,catalog):
         - catalog : options are 'sdss-7', '2mass', 'ukidss-8', 'usno-a2', 'usno-b1'
     """
     
-    db_url = catalogs[catalog]
+    db_url = cp.get(catalog)['url']
     logging.debug("Database (%s) url: %s", catalog, db_url)
     
     try:
@@ -56,7 +56,7 @@ def conesearch(ra,dec,radius,catalog):
 
 # --
 
-def main(ra,dec,radius,catalog,columns):
+def main(ra,dec,radius,catalog,columns,cp):
     """
     Do the input verifications and check the output of the query.
     
@@ -70,7 +70,7 @@ def main(ra,dec,radius,catalog,columns):
     
     radius = rad.to(units.degree).value # convert the given radius to degrees
 
-    srcsTab = conesearch(ra,dec,radius,catalog).to_table()
+    srcsTab = conesearch(ra,dec,radius,catalog,cp).to_table()
     
     if srcsTab is None:
         logging.critical("Search failed to complete. DAL raised an error.")
@@ -127,8 +127,8 @@ if __name__ == '__main__':
     # Parse the arguments
     args = parser.parse_args()
     
+    cp = config.parse()
     if args.list:
-        cp = config.parse()
         list_catalogs(cp)
         sys.exit(0)
     
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     rad = radius*ru
     logging.debug('Radius %s', rad)
     
-    if args.cat not in catalogs.keys():
+    if args.cat not in cp.keys():
         logging.critical("Wrong catalog name: %s", args.cat)
         print "Given catalog ('%s') is not known. Try a valid one (-h)." % (args.cat)
         print "Finishing here."
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     logging.debug("Output file %s",outfile)
     
     # Now, the main function does the search and columns filtering...
-    table = main(ra,dec,radius,cat,cols)
+    table = main(ra,dec,radius,cat,cols,cp)
     
     if table is None:
         if args.short:
