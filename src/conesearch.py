@@ -14,46 +14,9 @@ desc = """
     in a given catalog. To see the available catalogs use the '--list' option.
 """
 
-# Databases of interest
-catalogs = {
-    'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=PhotoObj&',
-    '2mass'    : 'http://wfaudata.roe.ac.uk/twomass-dsa/DirectCone?DSACAT=TWOMASS&DSATAB=twomass_psc&',
-    'ukidss-dr8' : 'http://wfaudata.roe.ac.uk/ukidssDR8-dsa/DirectCone?DSACAT=UKIDSS_DR8&DSATAB=lasSource&',
-    'ukidss-las' : 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=II/314&',
-    'usno-a2': 'http://archive.noao.edu/nvo/usno.php?cat=sa&',
-    'EUV': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=euv&',
-    'SWIRE': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=swirecxo&',
-    'BONN-1420MHZ': 'http://skyview.gsfc.nasa.gov/cgi-bin/vo/sia.pl?survey=1420mhz&',
-    'MIT-GB': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=mitgb6cm&',
-    'TEXAS-365MHZ': 'http://camelot.star.le.ac.uk:8080/dsa-catalog/SubmitCone?DSACAT=ledas&DSATAB=texas&',
-    'GSC23': 'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&',
-    'XTE-ASM': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=xteasmlong&',
-    'XTE-slew': 'http://heasarc.gsfc.nasa.gov/cgi-bin/vo/cone/coneGet.pl?table=xteassagn&',
-    'RU-GSC2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=gsc2_3_2&tab=main&'
-}
-#    'sdss-dr7': 'http://wfaudata.roe.ac.uk/sdssdr7-dsa/DirectCone?DSACAT=SDSS_DR7&DSATAB=Galaxy&',
-#    'usno-a2.1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-A2&',
-#    'usno-a2.2': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/252/out&',
-#    'usno-a2.3': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnoa2&tab=main&',
-#    'usno-b1'  : 'http://www.nofs.navy.mil/cgi-bin/vo_cone.cgi?CAT=USNO-B1&',
-#    'usno-b1.1': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=I/284/out&',
-#    'usno-b1.2': 'http://vo.astronet.ru/sai_cas/conesearch?cat=usnob1&tab=main&'
-
-columns = {
-    'sdss-dr7'  : ['objID','run','rerun','camcol','field','obj','type','ra','dec','u','g','r','i','z','err_u','err_g','err_r','err_i','err_z'],
-    '2mass'   : ['ra', 'dec', 'htmID', 'h_m', 'j_m', 'k_m', 'h_msigcom', 'j_msigcom', 'k_msigcom'],
-    'usno-a2' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude', 'Distance', 'Position_Angle'],
-#    'usno-b1' : ['Catalog_Name', 'RA', 'DEC', 'B_Magnitude', 'R_Magnitude'],
-    'ukidss-dr8': ['sourceID','ra','dec','epoch','eBV','yAperMag3','yAperMag3Err','j_1AperMag3','j_1AperMag3Err','hAperMag3','hAperMag3Err','kAperMag3','kAperMag3Err'],
-    'ukidss-las': ['ID','RAJ2000','DEJ2000','Epoch','Ymag','e_Ymag','Jmag','e_Jmag','Hmag','e_Hmag','Kmag','e_Kmag','Jtot','e_Jtot'],
-    'RU-GSC2': ['ra','dec','epoch','FpgMag','JpgMag','UMag','BMag','RMag','IMag'],
-    'GSC23': ['hstID','ra','dec','epoch','FpgMag','FpgMagErr','JpgMag','JpgMagErr','UMag','UMagErr','BMag','BMagErr','RMag','RMagErr','IMag','IMagErr']
-}
-
 # List the available catalogs
-def list_catalogs():
-    #print "Available options for 'catalogs':"
-    for k,v in catalogs.items():
+def list_catalogs(cp):
+    for k in cp.keys():
         print "%s" % (k)
 
 
@@ -130,6 +93,8 @@ def main(ra,dec,radius,catalog,columns):
 #
 if __name__ == '__main__':
 
+    import config
+
     import argparse
     parser = argparse.ArgumentParser(description=desc)
 
@@ -163,23 +128,24 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.list:
-        list_catalogs()
+        cp = config.parse()
+        list_catalogs(cp)
         sys.exit(0)
-        
-    if not args.ra:
-        print("error: RA not provided.")
-        sys.exit(1)
-    if not args.dec:
-        print("error: DEC not provided.")
-        sys.exit(1)
-    if not args.radius:
-        print("error: Radius not provided.")
-        sys.exit(1)
-    if not args.runit:
-        print("error: Radius unit (runit) not provided.")
-        sys.exit(1)
-    if not args.cat:
-        print("error: Catalog not provided.")
+    
+    if not (args.ra and args.dec and args.radius and args.runit and args.cat):
+        parser.print_help()
+        print "---"
+        if not args.ra:
+            print(" RA not provided.")
+        if not args.dec:
+            print(" DEC not provided.")
+        if not args.radius:
+            print(" Radius not provided.")
+        if not args.runit:
+            print(" Radius unit (runit) not provided.")
+        if not args.cat:
+            print(" Catalog not provided.")
+        print "---"
         sys.exit(1)
         
     if not args.nolog:
@@ -215,7 +181,10 @@ if __name__ == '__main__':
 
     if args.cols:
         if 'asdc' in args.cols:
-            cols = columns[cat]
+            if columns.has_key(cat):
+                cols = columns[cat]
+            else:
+                cols = []
         else:
             cols = args.cols
     else:
@@ -260,3 +229,4 @@ if __name__ == '__main__':
     print "---"
 
     sys.exit(0)
+

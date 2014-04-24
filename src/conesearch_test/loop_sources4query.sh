@@ -4,8 +4,8 @@
 #  exist on some catalogues
 
 FILE="test_sources.csv"
-
-cats=$(python conesearch.py --list)
+CMD="python ../conesearch.py" 
+cats=$($CMD --list)
 for cat in $cats
 do
     echo "---"
@@ -13,7 +13,7 @@ do
     while IFS=, read src ra dec
     do
         echo " -> looking for source $src ($ra , $dec)"
-        python conesearch.py --catalog "$cat" --ra "$ra" --dec "$dec" --radius 5 --runit arcsec --short
+        ${CMD} --catalog "$cat" --ra "$ra" --dec "$dec" --radius 5 --runit arcsec --short
         echo "-"
     done < ${FILE}
     echo "---"
