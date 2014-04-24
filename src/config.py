@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import ConfigParser
 
-FILE = "catalogs.cfg"
+FILE = "conesearch.cfg"
 
 def parse(catalog=None):
   cp = ConfigParser.ConfigParser()
