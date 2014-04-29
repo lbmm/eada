@@ -16,12 +16,14 @@ desc = """
 
 # List the available catalogs
 def list_catalogs(cp):
-    for k in cp.keys():
-        print "%s" % (k)
-
+    for k,d in cp.items():
+        print k
+        for c,v in d.items():
+            print "| %-10s : %s" % (c,v)
+        print ""
 
 # Search a source in a particular catalog
-def conesearch(ra,dec,radius,catalog,cp):
+def conesearch(ra,dec,radius,db_url,cp):
     """
     Search for objects inside the 'radius' around ('ra','dec,) in 'catalog'.
     
@@ -31,9 +33,6 @@ def conesearch(ra,dec,radius,catalog,cp):
         - radius  : search radius, value in degrees
         - catalog : options are 'sdss-7', '2mass', 'ukidss-8', 'usno-a2', 'usno-b1'
     """
-    
-    db_url = cp.get(catalog)['url']
-    logging.debug("Database (%s) url: %s", catalog, db_url)
     
     try:
         logging.debug("Position (%s,%s) and radius, in degrees, (%s)", ra, dec, radius)
@@ -56,7 +55,7 @@ def conesearch(ra,dec,radius,catalog,cp):
 
 # --
 
-def main(ra,dec,radius,catalog,columns,cp):
+def main(ra,dec,radius,db_url,columns,cp):
     """
     Do the input verifications and check the output of the query.
     
@@ -70,7 +69,7 @@ def main(ra,dec,radius,catalog,columns,cp):
     
     radius = rad.to(units.degree).value # convert the given radius to degrees
 
-    srcsTab = conesearch(ra,dec,radius,catalog,cp).to_table()
+    srcsTab = conesearch(ra,dec,radius,db_url,cp).to_table()
     
     if srcsTab is None:
         logging.critical("Search failed to complete. DAL raised an error.")
@@ -94,6 +93,7 @@ def main(ra,dec,radius,catalog,columns,cp):
 if __name__ == '__main__':
 
     import config
+    import string
 
     import argparse
     parser = argparse.ArgumentParser(description=desc)
@@ -106,13 +106,17 @@ if __name__ == '__main__':
     parser.add_argument('--radius', type=float, dest='radius',
                         help="Radius (around RA,DEC) to search for object(s)",)
 
-    parser.add_argument('--runit', default='arcsec',
+    parser.add_argument('--runit', dest='runit', #default='arcsec',
                         help="Unit used for radius value. Choices are 'degree','arcmin','arcsec'.")
 
     parser.add_argument('--catalog', dest='cat',
                         help="Catalog to search for data. To see your choices use the '--list' option.")
+    parser.add_argument('--url', dest='url',
+                        help="Service URL to query. To see some options use the '--list' option.")
+                        
     parser.add_argument('--columns', dest='cols', nargs='*',
-                        help="Columns to get from the retrieved catalog. If not given, all columns will be output.")
+                        help="Columns to get from the retrieved catalog. The argument 'asdc' will output a preset of columns, suitable for ASDC.\
+                        If not given, all columns will be output.")
 
     parser.add_argument('--list', action='store_true',
                         help="Print the list os catalogs available for the search.")
@@ -132,7 +136,7 @@ if __name__ == '__main__':
         list_catalogs(cp)
         sys.exit(0)
     
-    if not (args.ra and args.dec and args.radius and args.runit and args.cat):
+    if not (args.ra and args.dec and args.radius and args.runit and (args.cat or args.url)):
         parser.print_help()
         print "---"
         if not args.ra:
@@ -143,8 +147,8 @@ if __name__ == '__main__':
             print(" Radius not provided.")
         if not args.runit:
             print(" Radius unit (runit) not provided.")
-        if not args.cat:
-            print(" Catalog not provided.")
+        if not (args.cat or args.url):
+            print(" Catalog/url not provided.")
         print "---"
         sys.exit(1)
         
@@ -170,21 +174,34 @@ if __name__ == '__main__':
         sys.exit(1)
     rad = radius*ru
     logging.debug('Radius %s', rad)
-    
-    if args.cat not in cp.keys():
+
+    assert(args.cat or args.url)
+    if not args.url and args.cat not in cp.keys():
         logging.critical("Wrong catalog name: %s", args.cat)
         print "Given catalog ('%s') is not known. Try a valid one (-h)." % (args.cat)
         print "Finishing here."
         sys.exit(1)
-    cat = args.cat
-    logging.debug("Catalog to search for sources: %s", cat)
+
+    if args.cat:
+        cat = args.cat
+        logging.debug("Catalog to search for sources: %s", cat)
+        url = cp.get(cat)['url']
+        logging.debug("Database (%s) url: %s", cat, url)
+    else:
+        url = args.url
+        logging.debug("URL to search for sources: %s", url)
 
     if args.cols:
         if 'asdc' in args.cols:
-            if columns.has_key(cat):
-                cols = columns[cat]
-            else:
+            if args.url:
                 cols = []
+            else:
+                dcat = cp.get(cat)
+                if dcat.has_key('columns'):
+                    cols = dcat.get('columns')
+                    cols = string.split(cols,',')
+                else:
+                    cols = []
         else:
             cols = args.cols
     else:
@@ -199,7 +216,7 @@ if __name__ == '__main__':
     logging.debug("Output file %s",outfile)
     
     # Now, the main function does the search and columns filtering...
-    table = main(ra,dec,radius,cat,cols,cp)
+    table = main(ra,dec,radius,url,cols,cp)
     
     if table is None:
         if args.short:
